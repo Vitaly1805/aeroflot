@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteBase /
+
+DirectoryIndex aeroflot.php
+
+RewriteRule ^css\/.* - [L]
+RewriteRule ^js\/.* - [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule  ^(.*)$ aeroflot.php?$1 [L,QSA]
+RewriteRule ^css/(.*).css$     css/$1.css [L,QSA]
+RewriteRule ^images/(.*).jpg$     ^images/$1.jpg [L,QSA]

@@ -1,0 +1,14 @@
+{
+    "require": {
+        "twig/twig": "1.*",
+        "phpoffice/phpexcel": "^1.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "controller\\": "controller",
+            "model\\": "model",
+            "view\\": "view",
+            "vendor\\": "vendor/mbWords"
+        }
+    }
+}

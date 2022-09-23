@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/iconsfont.css">
+    <link rel="stylesheet" href="css/style.min.css">
+</head>
+
+<body>
+    <header>
+    <div class="header__body">
+        <div class="header__logo">
+            <a href="http://aeroflot/"><picture><source srcset="images/logo.webp" type="image/webp"><img src="images/logo.jpg" alt="" class="logo"></picture></a>
+        </div>
+        <div class="header__profile">
+            <a href="http://aeroflot/user" class="icon-user"></a><a href="http://aeroflot/user">Личный кабинет</a>
+        </div>
+    </div>
+</header>
+    <div class="content content-form">
+        <div class="content__body content-form__body">
+            <div class="content__back">
+                <a href="http://aeroflot/tickets"><i class="icon-arrow-left"></i> Вернуться к выбору рейса</a>
+            </div>
+            <div class="content__title">
+                Заполните данные пассажиров
+            </div>
+            <form action="" method="POST" name="myForm" onsubmit="return validateForm()" autocomplete="off">
+                {% for i in arrForms %}
+                <div class="content-form">
+                    <div class="content-form__body">
+                        <div class="content-form__top">
+                            <div class="content-form__title">
+                                {{i.ageCategory}}
+                            </div>
+                        </div>
+                        <div class="content-form__content">
+                            {{infoAboutRemainingUsers.0.surname}}
+                            {% if loop.index == 1 %}
+                            <input type="text" name="surname{{loop.index}}" required placeholder="Фамилия" value="{{infoAboutUser.surname}}" class="content-form__input content-form__lastname" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="name{{loop.index}}" required placeholder="Имя" value="{{infoAboutUser.name}}" class="content-form__input content-form__name" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="patronymic{{loop.index}}" required placeholder="Отчество" value="{{infoAboutUser.patronymic}}" class="content-form__input content-form__patronymic" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="date_birthday{{loop.index}}" required placeholder="Дата рождения" value="{{infoAboutUser.date_birthday}}"
+                                   class="content-form__input content-form__birthday" title="Введите валидную дату" pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:19\d{2}|20([0-1][0-9]|20)))$">
+                            <div class="content-form__spoiler content-form__spoiler-input-user-gender">
+                                <input type="text" name="gender{{loop.index}}" value="{{infoAboutUser.name_gender}}" readonly
+                                       class="content-form__input content-form__gender">
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list content-form__list-gender">
+                                    <div class="content-form__item">
+                                        Мужской
+                                    </div>
+                                    <div class="content-form__item">
+                                        Женский
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content-form__spoiler content-form__spoiler-document-first">
+                                <input type="text" name="document{{loop.index}}" value="{{infoAboutUser.name_document}}" readonly
+                                       class="content-form__input content-form__document-first">
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list content-form__list-document-first">
+                                    {% for i in documents %}
+                                    <div class="content-form__item content-form__item-document-first">
+                                        {{i.name}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <input type="text" name="num_document{{loop.index}}" placeholder="Номер документа" required value="{{infoAboutUser.num_document}}"
+                                   class="content-form__input content-form__num-document-first" pattern="^[0-9]{2} [0-9]{2} [0-9]{6}$" title="Введите валидный номер документа" >
+                            {% else %}
+                            <input type="text" name="surname{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].surname}}" required placeholder="Фамилия" class="content-form__input content-form__lastname" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="name{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].name}}" required placeholder="Имя" class="content-form__input content-form__name" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="patronymic{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].patronymic}}" required placeholder="Отчество" class="content-form__input content-form__patronymic" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" name="date_birthday{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].date_birthday}}" required placeholder="Дата рождения"
+                                   class="content-form__input content-form__birthday" title="Введите валидную дату" pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:19\d{2}|20([0-1][0-9]|20)))$">
+                            <div class="content-form__spoiler content-form__spoiler-input-user-gender">
+                                {% if infoAboutRemainingUsers[loop.index].gender %}
+                                <input type="text" name="gender{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].gender}}" readonly
+                                       class="content-form__input content-form__gender">
+                                {% else %}
+                                <input type="text" name="gender{{loop.index}}" value="Мужской" readonly
+                                       class="content-form__input content-form__gender">
+                                {% endif %}
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list content-form__list-gender">
+                                    <div class="content-form__item">
+                                        Мужской
+                                    </div>
+                                    <div class="content-form__item">
+                                        Женский
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content-form__spoiler content-form__spoiler-document">
+                                {% if infoAboutRemainingUsers[loop.index].document %}
+                                <input type="text" name="document{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].document}}" readonly
+                                       class="content-form__input content-form__document">
+                                {% else %}
+                                <input type="text" name="document{{loop.index}}" value="Паспорт" readonly
+                                       class="content-form__input content-form__document">
+                                {% endif %}
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list content-form__list-document">
+                                    {% for i in documents %}
+                                    <div class="content-form__item content-form__item-document">
+                                        {{i.name}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <input type="text" name="num_document{{loop.index}}" value="{{infoAboutRemainingUsers[loop.index].num_document}}" placeholder="Номер документа" required
+                                   class="content-form__input content-form__num-document" pattern="^[0-9]{2} [0-9]{2} [0-9]{6}$" title="Введите валидный номер документа" >
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="message message-error-order">{{errorOrder}}</div>
+                <input type="submit" name="order" value="Заказать билеты" class="content__button">
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="footer__body">
+        <div class="footer__email">
+            <address>umalat@mail.com</address>
+        </div>
+        <div class="footer__title">© 2021 AEROFLOT</div>
+        <div class="footer__website">
+            <a href="#" class="icon-vk"></a>
+            <a href="#" class="icon-facebook"></a>
+            <a href="#" class="icon-instagram"></a>
+            <a href="#" class="icon-twitter"></a>
+        </div>
+    </div>
+</footer>
+    <script src="js/main.min.js"></script>
+</body>
+
+</html>

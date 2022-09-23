@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/iconsfont.css">
+    <link rel="stylesheet" href="css/style.min.css">
+    <title>Document</title>
+</head>
+
+
+<div>
+    <header>
+    <div class="header__body">
+        <div class="header__logo">
+            <a href="http://aeroflot/"><picture><source srcset="images/logo.webp" type="image/webp"><img src="images/logo.jpg" alt="" class="logo"></picture></a>
+        </div>
+        {% if person == 'user' %}
+        <div class="header__profile">
+            <a href="http://aeroflot/user" class="icon-user"></a><a href="http://aeroflot/user">Личный кабинет</a>
+        </div>
+        {% elseif person == admin %}
+        <a href="http://aeroflot/admin" class="icon-user"></a><a href="http://aeroflot/admin">Админка</a>
+        {% else %}
+        <p class="reg-auth">Войти</p>
+        {% endif %}
+    </div>
+</header>
+    <div class="content">
+        <div class="content__body content__body-flights">
+            <div class="sidebar-filter">
+                {% if minHoursBeg %}
+                <form action="#" method="POST" id="filter" autocomplete="off">
+                    <div class="sidebar-filter__body">
+                        {% if minHoursBeg != maxHoursBeg or minDateDepartureBack != maxDateDepartureBack or minDateArrival != maxDateArrival or minDateDeparture != maxDateDeparture or airportDeparture[1]['name'] or arrAirportDepartureBack[1]['name'] %}
+                        <div class="sidebar-filter__item">
+                            <div class="sidebar-filter__title active">
+                                Перелёт
+                            </div>
+                            <div class="sidebar-filter__block sidebar__section">
+                                <div class="sidebar-filter__way">
+                                    {{searchResult.0.cityBeg}} - {{searchResult.0.cityEnd}}
+                                </div>
+                                {% if minHoursBeg != maxHoursBeg %}
+                                <div class="sidebar-filter__subtitle">
+                                    Длительность перелета, в часах
+                                </div>
+                                <div class="sidebar-price">
+                                    <div class="sidebar-price__slider ajax" id="range-slider-hours-beg"></div>
+                                    <div class="sidebar-price__inputs">
+                                        <label class="sidebar-price__label sidebar-price__label_short">
+                                            <span class="sidebar-price__text">от</span>
+                                            <input type="number" min="{{minHoursBeg}}" max="{{maxHoursBeg}}" disabled
+                                                class="sidebar__input sidebar__input-hours-beg_min" name="sidebar__input-hours-beg_min" value="{{minHoursBeg}}"
+                                                id="input-0">
+                                            <span class="sidebar-price__text"></span>
+                                        </label>
+                                        <label class="sidebar-price__label sidebar-price__label_short">
+                                            <span class="sidebar-price__text">до</span>
+                                            <input type="number" min="{{minHoursBeg}}" max="{{maxHoursBeg}}" disabled
+                                                class="sidebar__input sidebar__input-hours-beg_max" value="{{maxHoursBeg}}"
+                                                id="input-1">
+                                            <span class="sidebar-price__text"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if minDateDeparture != maxDateDeparture %}
+                                <div class="sidebar-filter__subtitle">
+                                    Вылет из {{searchResult.0.cityBeg}}
+                                </div>
+                                <div class="sidebar-filter__range-time">
+                                    <input type="text" name="amount-time-first-beg" id="amount-time-first-beg" class="amount-time-first-beg"
+                                        class='range-time' value="{{minDateDeparture}} - {{maxDateDeparture}}" />
+                                    <div id="polzunok-first-beg" class="ajax"></div><br>
+                                </div>
+                                {% endif %}
+                                {% if airportDeparture[1]['name'] %}
+                                <div class="sidebar-filter__subtitle sidebar-filter__border">
+                                    Аэропорт вылета
+                                </div>
+                                {% for item in airportDeparture %}
+                                <section class="sidebar-check dis">
+                                    <input id='check-departure-beg{{loop.index}}' type='checkbox' value="{{item.name}}" class="checkbox-airport-departure-beg check-departure-beg{{loop.index}}" checked disabled/>
+                                    <label for='check-departure-beg{{loop.index}}' class='check-airport-departure-beg ajax'>
+                                        <span></span>{{item.name}}
+                                    </label>
+                                </section>
+                                {% endfor %}
+                                {% endif %}
+                                {% if minDateArrival != maxDateArrival %}
+                                <div class="sidebar-filter__subtitle">
+                                    Прибытие в {{searchResult.0.cityEnd}}
+                                </div>
+                                <div class="sidebar-filter__range-time">
+                                    <input type="text" name="amount-time-first-end" id="amount-time-first-end" class="amount-time-first-end"
+                                        class='range-time' value="{{minDateArrival}} - {{maxDateArrival}}" />
+                                    <div id="polzunok-first-end" class="ajax"></div><br>
+                                </div>
+                                {% endif %}
+                                {% if airportArrival[1]['name'] %}
+                                <div class="sidebar-filter__subtitle">
+                                    Аэропорт прибытия
+                                </div>
+                                {% for item in airportArrival %}
+                                <section class="sidebar-check">
+                                    <input id='check-arrival-beg{{loop.index}}' type='checkbox' value="{{item.name}}" class="checkbox-airport-arrival-beg check-arrival-beg{{loop.index}}"  checked />
+                                    <label for='check-arrival-beg{{loop.index}}' class='check-airport-arrival-beg ajax'>
+                                        <span></span>{{item["name"]}}
+                                    </label>
+                                </section>
+                                {% endfor %}
+                                {% endif %}
+                                {% if minDateArrival != maxDateArrival %}
+                                <div class="sidebar-filter__way sidebar-filter__border">
+                                    {{searchResult.0.cityEnd}} - {{searchResult.0.cityBeg}}
+                                </div>
+                                {% if minHoursEnd != maxHoursEnd %}
+                                <div class="sidebar-filter__subtitle">
+                                    Длительность перелета, в часах
+                                </div>
+                                <div class="sidebar-price">
+                                    <div class="sidebar-price__slider ajax" id="range-slider-hours-end"></div>
+                                    <div class="sidebar-price__inputs">
+                                        <label class="sidebar-price__label sidebar-price__label_short">
+                                            <span class="sidebar-price__text">от</span>
+                                            <input type="number" min="{{minHoursEnd}}" max="{{maxHoursEnd}}"
+                                                class="sidebar__input sidebar__input-hours-end_min" value="{{minHoursEnd}}" disabled
+                                                id="input-2">
+                                            <span class="sidebar-price__text"></span>
+                                        </label>
+                                        <label class="sidebar-price__label sidebar-price__label_short">
+                                            <span class="sidebar-price__text">до</span>
+                                            <input type="number" min="{{minHoursEnd}}" max="{{maxHoursEnd}}" disabled
+                                                class="sidebar__input sidebar__input-hours-end_max" value="{{maxHoursEnd}}"
+                                                id="input-3">
+                                            <span class="sidebar-price__text"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                                {% if minDateDepartureBack != maxDateDepartureBack %}
+                                <div class="sidebar-filter__subtitle">
+                                    Вылет из {{searchResult.0.cityEnd}}
+                                </div>
+                                <div class="sidebar-filter__range-time">
+                                    <input type="text" name="amount-time-second-beg" id="amount-time-second-beg" class="amount-time-second-beg"
+                                        class='range-time' value="{{minDateDepartureBack}} - {{maxDateDepartureBack}}" />
+                                    <div id="polzunok-second-beg" class="ajax"></div><br>
+                                </div>
+                                {% endif %}
+                                {% if arrAirportDepartureBack[1]['name'] %}
+                                <div class="sidebar-filter__subtitle">
+                                    Аэропорт вылета
+                                </div>
+                                {% for item in arrAirportDepartureBack %}
+                                <section class="sidebar-check">
+                                    <input id='check-departure-end{{loop.index}}' type='checkbox' value="{{item.name}}" class="checkbox-airport-departure-end check-departure-end{{loop.index}}"  checked />
+                                    <label for='check-departure-end{{loop.index}}' class='check-airport-departure-end ajax'>
+                                        <span></span>{{item["name"]}}
+                                    </label>
+                                </section>
+                                {% endfor %}
+                                {% endif %}
+                                {% if minDateArrival != maxDateArrival %}
+                                <div class="sidebar-filter__subtitle sidebar-filter__border">
+                                    Прибытие в {{searchResult.0.cityBeg}}
+                                </div>
+                                <div class="sidebar-filter__range-time">
+                                    <input type="text" name="amount-time-second-end" id="amount-time-second-end" class="amount-time-second-end"
+                                        class='range-time' value="{{minDateArrivalBack}} - {{maxDateArrivalBack}}" />
+                                    <div id="polzunok-second-end" class="ajax"></div><br>
+                                </div>
+                                {% endif %}
+                                {% if arrAirportArrivalBack[1]['name'] %}
+                                <div class="sidebar-filter__subtitle">
+                                    Аэропорт прибытия
+                                </div>
+                                {% for item in arrAirportArrivalBack %}
+                                <section class="sidebar-check">
+                                    <input id='check-arrival-end{{loop.index}}' type='checkbox' value="{{item.name}}" class="checkbox-airport-arrival-end check-arrival-end{{loop.index}}" checked/>
+                                    <label for='check-arrival-end{{loop.index}}' class='check-airport-arrival-end ajax'>
+                                        <span></span>{{item["name"]}}
+                                    </label>
+                                </section>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if airplanes|length > 1 %}
+                        <div class="sidebar-filter__item">
+                            <div class="sidebar-filter__title active">
+                                Тип ВС
+                            </div>
+                            <div class="sidebar-filter__block sidebar__section">
+                                <section class="sidebar-check sidebar-check_mar">
+                                    {% for item in airplanes %}
+                                    <input id='check-airplanes-{{loop.index}}' type='checkbox' value="{{item.name}}" name="a" class="checkbox-airplane check-airplanes-{{loop.index}}"  checked/>
+                                    <label for='check-airplanes-{{loop.index}}' class='check-airplane ajax'>
+                                        <span></span>
+                                        {{item.name}}
+                                    </label>
+                                    {% endfor %}
+                                </section>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if minPrice != maxPrice %}
+                        <div class="sidebar-filter__item">
+                            <div class="sidebar-filter__title active">
+                                Цена
+                            </div>
+                            <div class="sidebar-price sidebar__section">
+                                <div class="sidebar-price__slider sidebar-price__slider_big ajax range-slider" tabindex="0" id="range-slider"></div>
+                                <div class="sidebar-price__inputs">
+                                    <label class="sidebar-price__label">
+                                        <span class="sidebar-price__text">от</span>
+                                        <input type="number" min="{{minPrice}}" max="{{maxPrice}}" disabled
+                                            class="sidebar__input sidebar__input_min" value="{{minPrice}}" id="input-4">
+                                        <span class="sidebar-price__text"><i class="icon-ruble"></i></span>
+                                    </label>
+                                    <label class="sidebar-price__label">
+                                        <span class="sidebar-price__text">до</span>
+                                        <input type="number" min="{{minPrice}}" max="{{maxPrice}}" disabled
+                                            class="sidebar__input sidebar__input_max"  value="{{maxPrice}}" id="input-5">
+                                        <span class="sidebar-price__text"><i class="icon-ruble"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <input type="submit" hidden class="filter" id="dd">
+                    <input type="reset" value="Отменить выбор" class="sidebar-filter__button button-reset"
+                        id="sidebar-filter__button">
+                </form>
+                {% endif %}
+            </div>
+
+            <div class="flights">
+                <div class="flights-top">
+                    <form action="tickets" method="post" autocomplete="off">
+                        <div class="ticket">
+                            <div class="ticket__body ticket__body-flights">
+                                <div class="ticket__col">
+                                    <div class="ticket__subtitle">
+                                        Город вылета
+                                    </div>
+                                    <div class="ticket__input">
+                                        <input type="text" required placeholder=" " name="ticketCityBeg" class="ticket__city-beg ticket-input" value="{{session.ticketCityBeg}}" title="Введите не меньше 2 букв"
+                                               pattern="^[- А-Яа-яЁё]{2,}$">
+                                    </div>
+                                </div>
+                                <div class="ticket__col">
+                                    <div class="ticket__subtitle">
+                                        Город прилета
+                                    </div>
+                                    <div class="ticket__input">
+                                        <input type="text" required placeholder=" " name="ticketCityEnd" class="ticket__city-end ticket-input" value="{{session.ticketCityEnd}}" title="Введите не меньше 2 букв"
+                                               pattern="^[- А-Яа-яЁё]{2,}$">
+                                    </div>
+                                </div>
+                                <div class="ticket__col">
+                                    <div class="ticket__subtitle">
+                                        Туда
+                                    </div>
+                                    <div class="ticket__input">
+                                        {% if session.ticketDateBeg %}
+                                        <input type="date" value="{{session.ticketDateBeg}}" name="ticketDateBeg" class="ticket__date-beg ticket-input">
+                                        {% else %}
+                                        <input type="date" value="{{nowTime}}" name="ticketDateBeg" class="ticket__date-beg ticket-input">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="ticket__col">
+                                    <div class="ticket__subtitle">
+                                        Обратно
+                                    </div>
+                                    <div class="ticket__input">
+                                        {% if session.ticketDateBeg %}
+                                        <input type="date" value="{{session.ticketDateEnd}}" name="ticketDateEnd" class="ticket__date-end ticket-input">
+                                        {% else %}
+                                        <input type="date" value="{{nowTime}}" name="ticketDateEnd" class="ticket__date-beg ticket-input">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="ticket__class-amount">
+                                    <div class="ticket__col ticket__class_show">
+                                        <div class="ticket__subtitle"></div>
+                                        <div class="ticket__input">
+                                            {% if session.class %}
+                                            <input type="text" readonly class="ticket__class ticket-input" name="ticket__class" value="{{session.adults + session.children}} пас, {{session.class}}">
+                                            {% else %}
+                                            <input type="text" readonly class="ticket__class ticket-input" name="ticket__class" value="1 пас, Эконом">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <input type="submit" value="Найти" name="ticket__button" class="ticket__button ticket-input">
+                                    <div class="ticket__lists">
+                                        <div class="ticket__lists-amount">
+                                            <div class="ticket__lists-item">
+                                                <div class="ticket__lists-col">
+                                                    {% if session.adults %}
+                                                    <input type="text" class="adults" hidden name="adults" value="{{session.adults}}">
+                                                    {% else %}
+                                                    <input type="text" class="adults" hidden name="adults" value="1">
+                                                    {% endif %}
+                                                    <div class="ticket__lists-subtitle">
+                                                        Взрослые
+                                                    </div>
+                                                    <div class="ticket__lists-age">
+                                                        От 12 лет
+                                                    </div>
+                                                </div>
+                                                <div class="ticket__lists-col">
+                                                    <div class="ticket__lists-counter">
+                                                        <div class="ticket__lists-minus ticket__lists-minus_first">
+                                                            -
+                                                        </div>
+                                                        <div class="ticket__lists-num ticket__lists-num_first">
+                                                            {% if session.adults %}
+                                                            {{session.adults}}
+                                                            {% else %}
+                                                            1
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="ticket__lists-plus ticket__lists-plus_first">
+                                                            +
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="ticket__lists-item">
+                                                <div class="ticket__lists-col">
+                                                    {% if session.children %}
+                                                    <input type="text" class="children" hidden name="children" value="{{session.children}}">
+                                                    {% else %}
+                                                    <input type="text" class="children" hidden name="children" value="0">
+                                                    {% endif %}
+                                                    <div class="ticket__lists-subtitle">
+                                                        Дети
+                                                    </div>
+                                                    <div class="ticket__lists-age">
+                                                        От 0 до 12 лет
+                                                    </div>
+                                                </div>
+                                                <div class="ticket__lists-col">
+                                                    <div class="ticket__lists-counter">
+                                                        <div class="ticket__lists-minus ticket__lists-minus_second">
+                                                            -</div>
+                                                        <div class="ticket__lists-num ticket__lists-num_second">
+                                                            {% if session.children %}
+                                                            {{session.children}}
+                                                            {% else %}
+                                                            0
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="ticket__lists-plus ticket__lists-plus_second">
+                                                            +
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ticket__lists-class">
+                                            <div class="ticket__lists-subtitle">
+                                                Выбор класса
+                                            </div>
+                                            <div class="select">
+                                                <i class="icon-arrow-bottom"></i>
+                                                {% if session.class %}
+                                                <input type="text" name="class" hidden value="{{session.class}}">
+                                                <div class="select__head">{{session.class}}</div>
+                                                {% else %}
+                                                <input type="text" name="class" hidden value="{{classes.0.name}}">
+                                                <div class="select__head">{{classes.0.name}}</div>
+                                                {% endif %}
+                                                <ul class="select__list" style="display: none;">
+                                                    {% for class in classes %}
+                                                    <li class="select__item">{{ class.name }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="flights__wrapper">
+                <div class="flights__wrap">
+                    {% if searchResult.0.airportName %}
+                    <div class="flights__content">
+                        <div class="flights__list">
+                            <div class="flights__title">
+                                {{searchResult.0.cityBeg}} - {{searchResult.0.cityEnd}}
+                            </div>
+                            <div class="flights__block flights__block_top">
+                                <div class="flights__subtitle">
+                                    Вылет
+                                </div>
+                                <div class="flights__subtitle">
+                                    Прилет
+                                </div>
+                                <div class="flights__subtitle">
+                                    Рейс
+                                </div>
+                                <div class="flights__subtitle">
+                                    В пути
+                                </div>
+                                <div class="flights__subtitle">
+                                    Минимальная цена
+                                </div>
+                            </div>
+                            {% for item in searchResult %}
+                            <div class="flights__block">
+                                <div class="flights__item">
+                                    {{item.date_departure}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.date_arrival}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.airplaneName}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.hours}} ч. {{item.minuts}} мин.
+                                </div>
+                                <div class="flights__item">
+                                    от {{item.price}} <i class="icon-ruble"></i>
+                                </div>
+                                <div class="flights__item">
+                                    <div class="flights-button">
+                                        {% if person == 'user' %}
+                                        <a href="form?flight={{item.id_flight}}" class="flights__choose">Выбрать рейс</a>
+                                        {% else %}
+                                        <p class="flights__choose reg-auth" style="font-size: 14px;">Выбрать рейс</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if searchResultBack.0.airportName %}
+                    <div class="flights__content">
+                        <div class="flights__list">
+                            <div class="flights__title a">
+                                {{searchResult.0.cityEnd}} - {{searchResult.0.cityBeg}}
+                            </div>
+                            <div class="flights__block flights__block_top">
+                                <div class="flights__subtitle">
+                                    Вылет
+                                </div>
+                                <div class="flights__subtitle">
+                                    Прилет
+                                </div>
+                                <div class="flights__subtitle">
+                                    Рейс
+                                </div>
+                                <div class="flights__subtitle">
+                                    В пути
+                                </div>
+                                <div class="flights__subtitle">
+                                    Минимальная цена
+                                </div>
+                                <div class="flights__subtitle">
+                                </div>
+                            </div>
+                            {% for item in searchResultBack %}
+                            <div class="flights__block">
+                                <div class="flights__item">
+                                    {{item.date_departure}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.date_arrival}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.airplaneName}}
+                                </div>
+                                <div class="flights__item">
+                                    {{item.hours}} ч. {{item.minuts}} мин.
+                                </div>
+                                <div class="flights__item">
+                                    от {{item.price}} <i class="icon-ruble"></i>
+                                </div>
+                                <div class="flights__item">
+                                    <div class="flights-button">
+                                        {% if person == 'user' %}
+                                        <a href="form?flight={{item.id_flight}}" class="flights__choose">Выбрать рейс</a>
+                                        {% else %}
+                                        <p class="flights__choose reg-auth" style="font-size: 14px;">Выбрать рейс</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay-reg-auth">
+        <div class="modal-reg-auth">
+            <a class="close-modal-reg-auth">
+                <svg viewBox="0 0 20 20">
+                    <path fill="#000000"
+                          d="M15.898,4.045c-0.271-0.272-0.713-0.272-0.986,0l-4.71,4.711L5.493,4.045c-0.272-0.272-0.714-0.272-0.986,0s-0.272,0.714,0,0.986l4.709,4.711l-4.71,4.711c-0.272,0.271-0.272,0.713,0,0.986c0.136,0.136,0.314,0.203,0.492,0.203c0.179,0,0.357-0.067,0.493-0.203l4.711-4.711l4.71,4.711c0.137,0.136,0.314,0.203,0.494,0.203c0.178,0,0.355-0.067,0.492-0.203c0.273-0.273,0.273-0.715,0-0.986l-4.711-4.711l4.711-4.711C16.172,4.759,16.172,4.317,15.898,4.045z">
+                    </path>
+                </svg>
+            </a>
+            <div class="modal-content">
+                <div class="modal-content__body">
+                    <div class="modal-content__reg-auth">
+                        <div class="modal-content__title modal-content__title_active">
+                            Вход
+                        </div>
+                        <div class="modal-content__title">
+                            Регистрация
+                        </div>
+                    </div>
+                    <form action="" method="POST" class="modal-content__form modal-content__form_active">
+                        <input type="text" required class="modal-content__input" value="{{login}}" placeholder="E-mail" name="login"  pattern="^[a-zA-Z0-9]{2,}@[a-z]{2,}\.[a-z]{2,4}$" title="Введите валидный email">
+                        <div class="password">
+                            <input required type="password" id="password-input-in" class="modal-content__input" placeholder="Пароль"
+                                   name="password" value="{{password}}" pattern="^[^ ]{6,}$" title="Введите не меньше 6 символов">
+                            <a href="#" class="password-control"
+                               onclick="return show_hide_password(this, 'password-input-in');"></a>
+                        </div>
+                        <div class="modal-content__checkbox">
+                            <section class="sidebar-check">
+                                <input type="checkbox" name="meRemember" id="modal-check">
+                                <label for="modal-check">
+                                    <span></span>
+                                    Запомнить меня
+                                </label>
+                            </section>
+                        </div>
+                        <span class="message">
+                            {% if errorAuthorization %}
+                            {{errorAuthorization}}
+                            {% endif %}
+                        </span>
+                        <input type="submit" value="Войти" class="modal-content__input modal-content__button" name="authorization">
+                    </form>
+
+                    <form action="" method="POST" class="modal-content__form" autocomplete="off">
+                        <input type="text" class="modal-content__input" name="regName" required placeholder="Имя*" value="{{nameReg}}" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                        <input type="text" class="modal-content__input" name="regSurname" required placeholder="Фамилия*" value="{{surnameReg}}" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                        <input type="text" class="modal-content__input" name="regPatronymic" required placeholder="Отчество*" value="{{patronymicReg}}" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                        <input type="email" class="modal-content__input" name="regLogin" required placeholder="E-mail*" value="{{loginReg}}" pattern="^[a-zA-Z0-9]{2,}@[a-z]{2,}\.[a-z]{2,4}$" title="Введите валидный email">
+                        <div class="password password-reg">
+                            <input type="password" required id="password-input-reg" class="modal-content__input password1"
+                                   placeholder="Пароль" value="{{passwordReg}}" name="password1">
+                            <a href="#" class="password-control"
+                               onclick="return show_hide_password(this, 'password-input-reg');"></a>
+                        </div>
+                        <div class="password">
+                            <input type="password" id="password-input-conf" class="modal-content__input password2"
+                                   placeholder="Подтвердите пароль" required name="password2" value="{{passwordReg}}">
+                            <a href="#" class="password-control"
+                               onclick="return show_hide_password(this, 'password-input-conf');"></a>
+                        </div>
+                        <span class="message errorRegistration" style="display: block;text-align: center;">
+                            {% if errorRegistration %}
+                            {{errorRegistration}}
+                            {% endif %}
+                        </span>
+                        <input type="submit" value="Регистрация" name="registration" class="modal-content__input modal-content__button registration">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+        <footer class="footer">
+    <div class="footer__body">
+        <div class="footer__email">
+            <address>umalat@mail.com</address>
+        </div>
+        <div class="footer__title">© 2021 AEROFLOT</div>
+        <div class="footer__website">
+            <a href="#" class="icon-vk"></a>
+            <a href="#" class="icon-facebook"></a>
+            <a href="#" class="icon-instagram"></a>
+            <a href="#" class="icon-twitter"></a>
+        </div>
+    </div>
+</footer>
+</div>
+        <script src="js/main.min.js"></script>
+    </body>
+
+</html>

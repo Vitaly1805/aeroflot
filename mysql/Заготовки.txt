@@ -1,0 +1,344 @@
+DELIMITER $$
+CREATE PROCEDURE searchFlights(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT id_flight, a.name AS airportName,
+(SELECT a1.name
+FROM flight AS f2
+INNER JOIN airport AS a1 
+ON f2.id_airport_arrival = a1.id_airport
+WHERE f.id_flight = f2.id_flight) as airportNameArrival, DATE_FORMAT(f.date_departure,'%H:%i') AS date_departure, DATE_FORMAT(f.date_arrival,'%H:%i') AS date_arrival, air.name AS airplaneName, p.price, class.name AS className, p.amount, TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) DIV 60 AS hours,
+TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) MOD 60 AS minuts
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival in (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival);
+END$$		
+
+DELIMITER $$
+CREATE PROCEDURE filteringByPrice(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                  IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE,
+                                  IN varMinPrice INT, IN varMaxPrice INT)
+BEGIN
+SELECT  a.name AS airportName, DATE_FORMAT(f.date_departure,'%H:%i') AS date_departure, DATE_FORMAT(f.date_arrival,'%H:%i') AS date_arrival, air.name AS airplaneName, p.price, class.name AS className, p.amount, TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) DIV 60 AS hours,
+TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) MOD 60 AS minuts
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND varMinPrice <= p.price
+AND varMaxPrice >= p.price
+AND f.id_airport_arrival = (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival);
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE 10:34 14.11.2021(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT  air.id_airplane AS id_airplane, air.name AS name
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival IN (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+GROUP BY name;
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE getMinPrice(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT price
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival = (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+ORDER BY price
+LIMIT 1;
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE getMinHours(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) DIV 60 AS minHours
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival = (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+ORDER BY minHours
+LIMIT 1;
+END$$	
+
+
+DELIMITER $$
+CREATE PROCEDURE getMaxDateDeparture(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT DATE_FORMAT(f.date_departure,'%H:%i') AS date_departure
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival = (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+ORDER BY date_departure desc
+LIMIT 1;
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE getMinDateArrival(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT DATE_FORMAT(f.date_arrival,'%H:%i') AS date_arrival
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival = (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+ORDER BY date_arrival
+LIMIT 1;
+END$$	
+
+
+DELIMITER $$
+CREATE PROCEDURE getArrAirportDeparture(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT a.name AS name
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND f.id_airport_arrival IN (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+GROUP BY name;
+END$$	
+
+
+DELIMITER $$
+CREATE PROCEDURE getArrAirportArrival(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE)
+BEGIN
+SELECT a.name AS na	
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_arrival = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityArrival
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_arrival,'%Y-%m-%d') = '2021-09-23'
+AND f.id_airport_departure IN (SELECT f.id_airport_departure
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_departure = a.id_airport
+                WHERE c.name = cityDeparture
+	GROUP BY f.id_airport_departure)
+GROUP BY name;
+END$$
+
+DELIMITER $$
+CREATE PROCEDURE filteringByPrice(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE, IN varMaxPrice INT, IN varMinPrice INT)
+BEGIN
+SELECT id_flight,
+(SELECT a1.name
+FROM flight AS f2
+INNER JOIN airport AS a1 
+ON f2.id_airport_arrival = a1.id_airport
+WHERE f.id_flight = f2.id_flight) as airportNameArrival,a.name AS airportName, DATE_FORMAT(f.date_departure,'%H:%i') AS date_departure, DATE_FORMAT(f.date_arrival,'%H:%i') AS date_arrival, air.name AS airplaneName, p.price, class.name AS className, p.amount, TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) DIV 60 AS hours,
+TIMESTAMPDIFF(MINUTE, date_departure, date_arrival) MOD 60 AS minuts
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND price <= varMaxPrice
+AND price >= varMinPrice
+AND f.id_airport_arrival in (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival);
+END$$
+
+DELIMITER $$
+CREATE PROCEDURE getNameAirportDepartureForFiltering(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE, IN varMaxPrice INT, IN varMinPrice INT)
+BEGIN
+SELECT a.name AS airportName
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_departure = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityDeparture
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_departure,'%Y-%m-%d') = varDate
+AND price <= varMaxPrice
+AND price >= varMinPrice
+AND f.id_airport_arrival in (SELECT f.id_airport_arrival
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_arrival = a.id_airport
+                WHERE c.name = cityArrival
+	GROUP BY f.id_airport_arrival)
+GROUP BY airportName;
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE getNameAirportArrivalForFiltering(IN cityDeparture VARCHAR(100), IN cityArrival VARCHAR(100),
+                                     IN varClass VARCHAR(100), IN varAmount INT, IN varDate DATE, IN varMaxPrice INT, IN varMinPrice INT)
+BEGIN
+SELECT f.id_flight, a.name AS airportName
+FROM city AS c
+INNER JOIN airport AS a USING(id_city)
+INNER JOIN flight AS f
+ON f.id_airport_arrival = a.id_airport
+INNER JOIN airplane AS air USING(id_airplane) 
+INNER JOIN place AS p USING(id_flight)
+INNER JOIN class USING(id_class)
+WHERE c.name = cityArrival
+AND class.name = varClass
+AND p.amount >= varAmount 
+AND DATE_FORMAT(f.date_arrival,'%Y-%m-%d') = varDate
+AND price <= varMaxPrice
+AND price >= varMinPrice
+AND f.id_airport_departure in (SELECT f.id_airport_departure
+                FROM city AS c
+                INNER JOIN airport AS a USING(id_city)
+                INNER JOIN flight AS f
+                ON f.id_airport_departure = a.id_airport
+                WHERE c.name = cityDeparture
+	GROUP BY f.id_airport_departure)
+GROUP BY f.id_flight, airportName;
+END$$	
+
+DELIMITER $$
+CREATE PROCEDURE authorization(IN varLogin VARCHAR(100), IN varPassword VARCHAR(100))
+BEGIN
+SELECT * FROM passenger
+WHERE login = varLogin AND password = varPassword;
+END$$

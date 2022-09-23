@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/iconsfont.css">
+    <link rel="stylesheet" href="css/style.min.css">
+    <title>Document</title>
+</head>
+
+<body>
+<div>
+    <header>
+    <div class="header__body">
+        <div class="header__logo">
+            <a href="http://aeroflot/"><picture><source srcset="images/logo.webp" type="image/webp"><img src="images/logo.jpg" alt="" class="logo"></picture></a>
+        </div>
+        {% if person == 'user' %}
+        <div class="header__profile">
+            <a href="http://aeroflot/user" class="icon-user"></a><a href="http://aeroflot/user">Личный кабинет</a>
+        </div>
+        {% elseif person == admin %}
+        <a href="http://aeroflot/admin" class="icon-user"></a><a href="http://aeroflot/admin">Админка</a>
+        {% else %}
+        <p class="reg-auth">Войти</p>
+        {% endif %}
+    </div>
+</header>
+    <div class="content">
+        <div class="content__body">
+            <div class="content__profile">
+                <div class="content__profile-title">
+                    Добро пожаловать, {{infoAboutUser.name}}!
+                </div>
+                <div class="content__profile-row">
+                    <div class="content__profile-col">
+                        <div class="content__profile-subtitle">
+                            Личные данные
+                        </div>
+                        <form action="" class="content__profile-form" method="post" autocomplete="off">
+                            <input type="text" required value="{{infoAboutUser.surname}}" name="surnameUser" class="content__profile-input" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" required value="{{infoAboutUser.name}}" name="nameUser" class="content__profile-input" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            <input type="text" required value="{{infoAboutUser.patronymic}}" name="patronymicUser" class="content__profile-input" pattern="^[А-Яа-яЁё]{2,}$" title="Введите не меньше 2 букв">
+                            {% if arrDocuments %}
+                            <div class="content-form__spoiler content-form__spoiler-input-user">
+                                <input type="text" value="{{infoAboutUser.document_name}}" name="documentNameUser"
+                                       class="content-form__input content-form__document" readonly>
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list">
+                                    {% for item in arrDocuments %}
+                                    <div class="content-form__item">
+                                        {{item.name}}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <input type="text" value="{{infoAboutUser.num_document}}" name="numDocumentUser" class="content__profile-input content__profile-input-document" pattern="^[0-9]{2} [0-9]{2} [0-9]{6}$" title="Введите валидный номер документа">
+                            <input type="date" value="{{infoAboutUser.date_birthday}}" name="dateBirthdayUser" class="content__profile-input">
+                            <div class="content-form__spoiler content-form__spoiler-input-user-gender" style="width: 400px; font-size: 16px;">
+                                <input type="text" value="{{infoAboutUser.gender_name}}" readonly name="genderNameUser"
+                                       class="content-form__input content-form__gender">
+                                <i class="icon-arrow-bottom"></i>
+                                <div class="content-form__list">
+                                    <div class="content-form__item">
+                                        Мужской
+                                    </div>
+                                    <div class="content-form__item">
+                                        Женский
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="email" required value="{{infoAboutUser.login}}" name="loginUser" class="content__profile-input"  pattern="^[a-zA-Z0-9]{2,}@[a-z]{2,}\.[a-z]{2,4}$" title="Введите валидный email">
+                            {% if messageForUpdateInfoAboutUser %}
+                            <span class="message-bottom">{{messageForUpdateInfoAboutUser}}</span>
+                            {% endif %}
+                            <input type="submit" value="Сохранить" name="updateInfoAboutUser"
+                                class="content__profile-input content__profile-input_blue">
+                        </form>
+                    </div>
+                    <div class="content__profile-col">
+                        <div class="content__profile-subtitle">
+                            Смена пароля
+                        </div>
+                        <form action="" class="content__profile-form" method="post">
+                            <div class="content__profile-form-input">
+                                <div class="password password-reg">
+                                    <input required type="password" id="password-input-reg1" class="modal-content__input password1"
+                                        name="firstPassword" placeholder="Новый пароль"  pattern="^[^ ]{6,}$"
+                                           title="Введите не меньше 6 символов">
+                                    <a href="#" class="password-control"
+                                        onclick="return show_hide_password(this, 'password-input-reg1');"></a>
+                                </div>
+                            </div>
+                            <div class="content__profile-form-input">
+                                <div class="password password-reg">
+                                    <input required type="password" id="password-input-reg2" class="modal-content__input password2"
+                                        name="secondPassword" placeholder="Подтвердить пароль" pattern="^[^ ]{6,}$"
+                                           title="Введите не меньше 6 символов">
+                                    <a href="#" class="password-control"
+                                        onclick="return show_hide_password(this, 'password-input-reg2');"></a>
+                                </div>
+                            </div>
+                            <div class="message-bottom error-update-password">
+                                {% if messageForUpdatePassword %}
+                                {{messageForUpdatePassword}}
+                                {% endif %}
+                            </div>
+                            <input type="submit" value="Изменить" name="updatePasswordUser"
+                                class="content__profile-input content__profile-input_blue update-password">
+                        </form>
+                    </div>
+                </div>
+                <div class="content__profile-subtitle">
+                    Заказы
+                </div>
+                <div class="content__profile-list">
+                    {% if infoAboutUserOrder.0.name  %}
+                    <div class="profile-item">
+                        <div class="profile-item__city-start">
+                            Город вылета
+                        </div>
+                        <div class="profile-item__city-end">
+                            Город прибытия
+                        </div>
+                        <div class="profile-item__date">
+                            Время вылета
+                        </div>
+                        <div class="profile-item__date">
+                            ФИО
+                        </div>
+                        <div class="profile-item__download">
+
+                        </div>
+                    </div>
+                    {% for item in infoAboutUserOrder %}
+                    <div class="profile-item">
+                        <div class="profile-item__city-start">
+                            {{item.airport_name_departure}}
+                        </div>
+                        <div class="profile-item__city-end">
+                            {{item.airport_name_arrival}}
+                        </div>
+                        <div class="profile-item__date">
+                            {{item.date_departure}}
+                        </div>
+                        <div class="profile-item__date">
+                            {{item.surname}} {{item.name}} {{item.patronymic}}
+                        </div>
+                        <div class="profile-item__download">
+                            <a href="http://localhost:3000/user.html?id_bilet={{item.id_passenger}}{{item.id_place}}">Скачать билет</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    {{infoAboutUserOrder}}
+                    {% endif %}
+                </div>
+                <form action="" class="content__profile-close" method="post">
+                    <input type="submit" value="Выйти" name="exitIntoProfile" class="content__profile-input content__profile-input_blue">
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="footer__body">
+        <div class="footer__email">
+            <address>umalat@mail.com</address>
+        </div>
+        <div class="footer__title">© 2021 AEROFLOT</div>
+        <div class="footer__website">
+            <a href="#" class="icon-vk"></a>
+            <a href="#" class="icon-facebook"></a>
+            <a href="#" class="icon-instagram"></a>
+            <a href="#" class="icon-twitter"></a>
+        </div>
+    </div>
+</footer>
+</div>
+    <script src="js/main.min.js"></script>
+    </body>
+
+</html>
